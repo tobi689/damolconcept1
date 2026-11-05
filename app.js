@@ -5,6 +5,100 @@
 
 const CFG = window.SITE_CONFIG;
 
+/* ---- PROGRESSIVE WEB APP ---- */
+(function initInstallPrompt() {
+  const dialog = document.getElementById('app-install-dialog');
+  const installButton = document.getElementById('app-install-action');
+  const closeButton = document.getElementById('app-install-close');
+  const laterButton = document.getElementById('app-install-later');
+  const instructions = document.getElementById('app-install-instructions');
+  if (!dialog || !installButton || !closeButton || !laterButton || !instructions) return;
+
+  if ('serviceWorker' in navigator && window.isSecureContext) {
+    navigator.serviceWorker.register('./service-worker.js')
+      .catch(error => console.error('Damol Concept app setup failed:', error));
+  }
+
+  const referrerHost = document.referrer ? new URL(document.referrer).hostname : '';
+  const cameFromSearch = /(^|\.)google\.[a-z.]+$/.test(referrerHost)
+    || /(^|\.)((bing|yahoo|duckduckgo)\.com|ecosia\.(com|org)|(brave|yandex)\.[a-z.]+)$/.test(referrerHost);
+  const isInstalled = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (!cameFromSearch || isInstalled) return;
+
+  let deferredPrompt = null;
+  let dialogOpened = false;
+  let returnFocus = null;
+
+  function closeDialog() {
+    dialog.classList.remove('open');
+    dialog.hidden = true;
+    document.body.style.overflow = '';
+    if (returnFocus instanceof HTMLElement) returnFocus.focus();
+  }
+
+  function openDialog() {
+    if (dialogOpened) return;
+    dialogOpened = true;
+    returnFocus = document.activeElement;
+    dialog.hidden = false;
+    dialog.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    installButton.focus();
+  }
+
+  window.addEventListener('beforeinstallprompt', event => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installButton.textContent = 'Install app';
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    closeDialog();
+  });
+
+  installButton.addEventListener('click', async () => {
+    if (!deferredPrompt) {
+      if (instructions.hidden) {
+        const isAppleMobile = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        instructions.innerHTML = isAppleMobile
+          ? '<p>In Safari, tap <strong>Share</strong>, then choose <strong>Add to Home Screen</strong>.</p>'
+          : '<p>Open your browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>';
+        instructions.hidden = false;
+        installButton.textContent = 'Got it';
+      } else {
+        closeDialog();
+      }
+      return;
+    }
+
+    try {
+      await deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      if (choice.outcome === 'accepted') closeDialog();
+      else installButton.textContent = 'Install app';
+    } catch (error) {
+      console.error('Damol Concept app installation could not start:', error);
+      deferredPrompt = null;
+      instructions.innerHTML = '<p>Use your browser menu to choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</p>';
+      instructions.hidden = false;
+      installButton.textContent = 'Got it';
+    }
+  });
+
+  closeButton.addEventListener('click', closeDialog);
+  laterButton.addEventListener('click', closeDialog);
+  dialog.addEventListener('click', event => {
+    if (event.target === dialog) closeDialog();
+  });
+  dialog.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeDialog();
+  });
+  window.setTimeout(openDialog, 1200);
+})();
+
 /* ---- AURORA CANVAS ---- */
 (function initAurora() {
   const canvas = document.getElementById('aurora-canvas');
@@ -17,14 +111,14 @@ const CFG = window.SITE_CONFIG;
   function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
   resize();
   const blobs = [
-    { x: 0.3, y: 0.4, r: 0.45, color: [18,41,79] },
-    { x: 0.7, y: 0.6, r: 0.4,  color: [232,163,23] },
-    { x: 0.5, y: 0.3, r: 0.35, color: [11,50,90] },
-    { x: 0.2, y: 0.7, r: 0.3,  color: [47,111,94] }
+    { x: 0.3, y: 0.4, r: 0.45, color: [23,77,66] },
+    { x: 0.7, y: 0.6, r: 0.4,  color: [33,167,131] },
+    { x: 0.5, y: 0.3, r: 0.35, color: [11,82,66] },
+    { x: 0.2, y: 0.7, r: 0.3,  color: [40,120,95] }
   ];
   function draw() {
     ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = '#0B1B3A';
+    ctx.fillStyle = '#103A32';
     ctx.fillRect(0,0,W,H);
     blobs.forEach((b,i) => {
       const ox = Math.sin(t * 0.4 + i * 1.3) * 0.12;
