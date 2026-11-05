@@ -586,13 +586,13 @@ body {
   .library-showcase { perspective: none; }
   .library-track { transform-style: flat; }
   .library-slide {
-    transform: translate3d(18px, 0, 0);
+    transform: none;
     backface-visibility: hidden;
-    transition: opacity 320ms ease-out, transform 360ms cubic-bezier(0.2,0.75,0.25,1);
+    transition: opacity 260ms ease-in-out;
+    will-change: opacity;
   }
-  .library-slide.is-active { transform: translate3d(0, 0, 0); }
-  .library-slide.is-exiting { transform: translate3d(-18px, 0, 0); }
-  .library-photo { transform: scale(1.02); animation: none; }
+  .library-slide.is-active, .library-slide.is-exiting { transform: none; }
+  .library-photo { transform: none; animation: none; }
   .about-photo-wrap::before { right: 0; }
   .exp-card { right: 0; }
   [data-reveal] { transform: translateY(18px); transition-duration: 0.55s; }
