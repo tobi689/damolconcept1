@@ -337,17 +337,19 @@ function initCounters() {
 initCounters();
 
 /* ---- SCROLL REVEAL ---- */
+document.querySelectorAll('.hero-content, .trust-grid .badge, .about-grid > *, .testi-carousel, .order-form-container, .footer-grid > *').forEach(el => {
+  el.setAttribute('data-reveal', '');
+});
 const revealObserver = new IntersectionObserver((entries) => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObserver.unobserve(e.target); } });
-}, { threshold: 0.15 });
+  entries.forEach(entry => {
+    entry.target.classList.toggle('revealed', entry.isIntersecting);
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -24px 0px' });
 document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
 const founderVisual = document.querySelector('.about-visual');
 if (founderVisual) {
   const founderPhotoObserver = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) {
-      founderVisual.classList.add('photo-in-view');
-      founderPhotoObserver.unobserve(founderVisual);
-    }
+    founderVisual.classList.toggle('photo-in-view', entry.isIntersecting);
   }, { threshold: 0.2 });
   founderPhotoObserver.observe(founderVisual);
 }
@@ -363,7 +365,7 @@ if (founderVisual) {
     card.innerHTML = `
       <div class="service-icon">${s.icon}</div>
       <h3 class="service-name">${s.name}</h3>
-      <div class="service-desc">${s.desc}</div>
+      <p class="service-desc">${s.desc}</p>
       <button class="service-learn-more" type="button" aria-label="Learn more about ${s.name}">
         <span class="service-info-icon" aria-hidden="true">i</span> Learn more
       </button>
@@ -599,6 +601,7 @@ document.getElementById('lightbox').addEventListener('click', function(e) {
   CFG.faqs.forEach(f => {
     const item = document.createElement('div');
     item.className = 'faq-item';
+    item.setAttribute('data-reveal', '');
     item.innerHTML = `
       <button class="faq-q" aria-expanded="false">
         ${f.q}
@@ -613,6 +616,7 @@ document.getElementById('lightbox').addEventListener('click', function(e) {
       else this.setAttribute('aria-expanded','false');
     });
     list.appendChild(item);
+    revealObserver.observe(item);
   });
 })();
 
