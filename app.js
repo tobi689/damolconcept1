@@ -253,6 +253,7 @@ if (typewriterMobile.matches) {
   let current = 0;
   let timer = 0;
   let paused = false;
+  const exitTimers = new WeakMap();
 
   function setCredit(library) {
     credit.textContent = `Library shelf ${libraries.indexOf(library) + 1} of ${libraries.length}`;
@@ -263,7 +264,7 @@ if (typewriterMobile.matches) {
     if (!reducedMotion && !paused && !document.hidden) {
       timer = window.setTimeout(() => {
         showSlide((current + 1) % libraries.length, false);
-      }, 5200);
+      }, 4200);
     }
   }
 
@@ -273,13 +274,19 @@ if (typewriterMobile.matches) {
       const slides = track.querySelectorAll('.library-slide');
       const dotsList = dots.querySelectorAll('.library-dot');
       const outgoing = slides[current];
+      const nextSlide = slides[nextIndex];
+      window.clearTimeout(exitTimers.get(outgoing));
+      window.clearTimeout(exitTimers.get(nextSlide));
       outgoing.classList.remove('is-active');
       outgoing.classList.add('is-exiting');
       outgoing.setAttribute('aria-hidden', 'true');
-      window.setTimeout(() => outgoing.classList.remove('is-exiting'), 700);
-      slides[nextIndex].classList.remove('is-exiting');
-      slides[nextIndex].classList.add('is-active');
-      slides[nextIndex].setAttribute('aria-hidden', 'false');
+      exitTimers.set(outgoing, window.setTimeout(() => {
+        outgoing.classList.remove('is-exiting');
+        exitTimers.delete(outgoing);
+      }, smallViewport.matches ? 380 : 900));
+      nextSlide.classList.remove('is-exiting');
+      nextSlide.classList.add('is-active');
+      nextSlide.setAttribute('aria-hidden', 'false');
       dotsList[current].classList.remove('is-active');
       dotsList[current].setAttribute('aria-pressed', 'false');
       dotsList[nextIndex].classList.add('is-active');
