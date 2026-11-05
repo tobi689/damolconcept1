@@ -633,3 +633,7 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  .library-slide { transition-duration: 260ms !important; }
+  .about-visual.photo-in-view .about-photo img { animation-duration: 0.48s !important; }
+}

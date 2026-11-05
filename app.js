@@ -226,8 +226,9 @@ if (typewriterMobile.matches) {
   const libraries = CFG.universityLibraries || [];
   if (!libraries.length) return;
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const smallViewport = window.matchMedia('(max-width: 768px)');
+  const hoverDevice = window.matchMedia('(hover: hover) and (pointer: fine)');
   libraries.forEach((library, index) => {
     const slide = document.createElement('article');
     slide.className = 'library-slide' + (index === 0 ? ' is-active' : '');
@@ -261,7 +262,7 @@ if (typewriterMobile.matches) {
 
   function scheduleNext() {
     window.clearTimeout(timer);
-    if (!reducedMotion && !paused && !document.hidden) {
+    if ((!reducedMotion.matches || smallViewport.matches) && !paused && !document.hidden) {
       timer = window.setTimeout(() => {
         showSlide((current + 1) % libraries.length, false);
       }, 4200);
@@ -300,15 +301,17 @@ if (typewriterMobile.matches) {
 
   previous?.addEventListener('click', () => showSlide(current - 1));
   next?.addEventListener('click', () => showSlide(current + 1));
-  showcase.addEventListener('mouseenter', () => { paused = true; window.clearTimeout(timer); });
-  showcase.addEventListener('mouseleave', () => { paused = false; scheduleNext(); });
-  showcase.addEventListener('focusin', () => { paused = true; window.clearTimeout(timer); });
-  showcase.addEventListener('focusout', event => {
-    if (!showcase.contains(event.relatedTarget)) {
-      paused = false;
-      scheduleNext();
-    }
-  });
+  if (hoverDevice.matches) {
+    showcase.addEventListener('mouseenter', () => { paused = true; window.clearTimeout(timer); });
+    showcase.addEventListener('mouseleave', () => { paused = false; scheduleNext(); });
+    showcase.addEventListener('focusin', () => { paused = true; window.clearTimeout(timer); });
+    showcase.addEventListener('focusout', event => {
+      if (!showcase.contains(event.relatedTarget)) {
+        paused = false;
+        scheduleNext();
+      }
+    });
+  }
   showcase.addEventListener('keydown', event => {
     if (event.key === 'ArrowLeft') showSlide(current - 1);
     if (event.key === 'ArrowRight') showSlide(current + 1);
