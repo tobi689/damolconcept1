@@ -95,10 +95,6 @@ const typewriterMobile = window.matchMedia('(max-width: 768px)');
 let typewriterTimer = 0;
 function typeWrite() {
   if (!twEl) return;
-  if (typewriterMobile.matches) {
-    twEl.textContent = 'Research Support';
-    return;
-  }
   const word = typeWords[twI];
   if (twDeleting) {
     twEl.textContent = word.slice(0, --twCharI);
@@ -170,7 +166,7 @@ if (typewriterMobile.matches) {
 
   function scheduleNext() {
     window.clearTimeout(timer);
-    if (!reducedMotion && !smallViewport.matches && !paused && !document.hidden) {
+    if (!reducedMotion && !paused && !document.hidden) {
       timer = window.setTimeout(() => {
         showSlide((current + 1) % libraries.length, false);
       }, 5200);
@@ -251,6 +247,13 @@ const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); revealObserver.unobserve(e.target); } });
 }, { threshold: 0.15 });
 document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+const founderVisual = document.querySelector('.about-visual');
+if (founderVisual) {
+  const founderPhotoObserver = new IntersectionObserver(([entry]) => {
+    founderVisual.classList.toggle('photo-in-view', entry.isIntersecting);
+  }, { threshold: 0.2 });
+  founderPhotoObserver.observe(founderVisual);
+}
 
 /* ---- BUILD SERVICES ---- */
 (function buildServices() {
