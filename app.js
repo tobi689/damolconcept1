@@ -11,9 +11,11 @@ const CFG = window.SITE_CONFIG;
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let W, H, t = 0;
+  let animationFrame = 0;
+  const smallViewport = window.matchMedia('(max-width: 768px)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   function resize() { W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
   resize();
-  window.addEventListener('resize', resize);
   const blobs = [
     { x: 0.3, y: 0.4, r: 0.45, color: [18,41,79] },
     { x: 0.7, y: 0.6, r: 0.4,  color: [232,163,23] },
@@ -37,9 +39,17 @@ const CFG = window.SITE_CONFIG;
       ctx.fillRect(0,0,W,H);
     });
     t += 0.008;
-    requestAnimationFrame(draw);
+    animationFrame = requestAnimationFrame(draw);
   }
-  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) draw();
+  function updateMotion() {
+    cancelAnimationFrame(animationFrame);
+    resize();
+    if (!smallViewport.matches && !reducedMotion.matches) draw();
+  }
+  window.addEventListener('resize', resize);
+  smallViewport.addEventListener('change', updateMotion);
+  reducedMotion.addEventListener('change', updateMotion);
+  if (!smallViewport.matches && !reducedMotion.matches) draw();
 })();
 
 /* ---- NAVBAR ---- */
@@ -81,20 +91,37 @@ function highlightNav() {
 const typeWords = ['Project Writing','SPSS Analysis','Proofreading','Defense Prep','Questionnaire Design','Thesis Support'];
 let twI = 0, twCharI = 0, twDeleting = false;
 const twEl = document.getElementById('typewriter');
+const typewriterMobile = window.matchMedia('(max-width: 768px)');
+let typewriterTimer = 0;
 function typeWrite() {
   if (!twEl) return;
+  if (typewriterMobile.matches) {
+    twEl.textContent = 'Research Support';
+    return;
+  }
   const word = typeWords[twI];
   if (twDeleting) {
     twEl.textContent = word.slice(0, --twCharI);
     if (twCharI === 0) { twDeleting = false; twI = (twI + 1) % typeWords.length; }
-    setTimeout(typeWrite, 60);
+    typewriterTimer = setTimeout(typeWrite, 60);
   } else {
     twEl.textContent = word.slice(0, ++twCharI);
-    if (twCharI === word.length) { twDeleting = true; setTimeout(typeWrite, 1800); }
-    else setTimeout(typeWrite, 90);
+    if (twCharI === word.length) { twDeleting = true; typewriterTimer = setTimeout(typeWrite, 1800); }
+    else typewriterTimer = setTimeout(typeWrite, 90);
   }
 }
-setTimeout(typeWrite, 1000);
+typewriterMobile.addEventListener('change', () => {
+  clearTimeout(typewriterTimer);
+  twI = 0;
+  twCharI = 0;
+  twDeleting = false;
+  typeWrite();
+});
+if (typewriterMobile.matches) {
+  typeWrite();
+} else {
+  typewriterTimer = setTimeout(typeWrite, 1000);
+}
 
 /* ---- UNIVERSITY LIBRARY CAROUSEL ---- */
 (function initLibraryCarousel() {
