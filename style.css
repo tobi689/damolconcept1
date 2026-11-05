@@ -554,7 +554,7 @@ body {
   .lightbox-img-wrap img { max-height: 72vh; }
   .library-slide { transform: none; transition: opacity 350ms ease; }
   .library-slide.is-exiting { transform: none; }
-  .library-photo { transform: scale(1.04); }
+  .library-photo { transform: scale(1.04); animation: none; }
   .about-photo-wrap::before { right: 0; }
   .exp-card { right: 0; }
   [data-reveal] { transform: none; }
@@ -566,8 +566,6 @@ body {
 }
 @media (max-width: 480px) {
   .container { padding: 0 18px; }
-  .hero-sub { min-height: 5.1em; }
-  .typewriter { display: block; width: fit-content; }
   .section { padding: 58px 0; }
   .section-title { font-size: clamp(1.8rem, 8vw, 2.5rem); }
   .section-desc { padding: 0 4px; font-size: 0.94rem; }
@@ -585,8 +583,12 @@ body {
   .footer-legal { flex-wrap: wrap; }
   .lightbox-img-wrap { max-width: calc(100vw - 80px); }
   .gold-frame { left: -8px; top: -8px; }
-  .about-visual.photo-in-view .about-photo img { animation-name: founderSlideInMobile; }
-  @keyframes founderSlideInMobile { from { opacity: 0.65; transform: translateX(-56px) scale(0.98); } to { opacity: 1; transform: translateX(0) scale(1); } }
+}
+@media (max-width: 768px) {
+  .hero-sub { min-height: 5.1em; }
+  .typewriter { display: block; width: 14em; max-width: 100%; height: 1.7em; overflow: hidden; }
+  .about-visual.photo-in-view .about-photo img { animation: founderFadeIn 0.5s ease both; }
+  @keyframes founderFadeIn { from { opacity: 0.65; } to { opacity: 1; } }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }

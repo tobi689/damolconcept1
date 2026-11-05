@@ -250,7 +250,10 @@ document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(
 const founderVisual = document.querySelector('.about-visual');
 if (founderVisual) {
   const founderPhotoObserver = new IntersectionObserver(([entry]) => {
-    founderVisual.classList.toggle('photo-in-view', entry.isIntersecting);
+    if (entry.isIntersecting) {
+      founderVisual.classList.add('photo-in-view');
+      founderPhotoObserver.unobserve(founderVisual);
+    }
   }, { threshold: 0.2 });
   founderPhotoObserver.observe(founderVisual);
 }
