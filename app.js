@@ -110,6 +110,7 @@ setTimeout(typeWrite, 1000);
   if (!libraries.length) return;
 
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const smallViewport = window.matchMedia('(max-width: 768px)');
   libraries.forEach((library, index) => {
     const slide = document.createElement('article');
     slide.className = 'library-slide' + (index === 0 ? ' is-active' : '');
@@ -142,7 +143,7 @@ setTimeout(typeWrite, 1000);
 
   function scheduleNext() {
     window.clearTimeout(timer);
-    if (!reducedMotion && !paused && !document.hidden) {
+    if (!reducedMotion && !smallViewport.matches && !paused && !document.hidden) {
       timer = window.setTimeout(() => {
         showSlide((current + 1) % libraries.length, false);
       }, 5200);
@@ -198,6 +199,7 @@ setTimeout(typeWrite, 1000);
     if (Math.abs(delta) > 48) showSlide(current + (delta < 0 ? 1 : -1));
   }, { passive: true });
   document.addEventListener('visibilitychange', scheduleNext);
+  smallViewport.addEventListener('change', scheduleNext);
 
   showSlide(0);
 })();
